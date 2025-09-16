@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subscribe | Aditya Games</title>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #1c1c1c; color: #f5f5f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+    .container { background: #2a2a2a; padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; width: 100%; box-shadow: 0 0 20px rgba(0,0,0,0.6); }
+    h2 { margin-bottom: 15px; color: #ffcc00; }
+    p { font-size: 14px; margin-bottom: 20px; }
+    input[type="email"] { width: 90%; padding: 12px; border: none; border-radius: 8px; margin-bottom: 15px; outline: none; }
+    button { background: #ffcc00; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; }
+    button:hover { background: #ffaa00; }
+    .thanks { display: none; margin-top: 15px; color: #00ff88; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Subscribe 🚀</h2>
+    <p>Don’t miss new teasers, demos, and full game releases.<br>Join the mailing list now!</p>
+    
+    <form id="subscribeForm">
+      <input type="email" id="email" placeholder="Enter your email" required>
+      <br>
+      <button type="submit">Subscribe</button>
+    </form>
+    
+    <div id="thanksMessage" class="thanks">✅ Thanks for subscribing!</div>
+  </div>
+
+  <script>
+    const form = document.getElementById("subscribeForm");
+    const thanks = document.getElementById("thanksMessage");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("email").value;
+
+      try {
+        const res = await fetch("/api/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+
+        if (res.ok) {
+          thanks.style.display = "block";
+          thanks.textContent = "✅ Thanks for subscribing!";
+          form.reset();
+        } else {
+          const data = await res.json();
+          thanks.style.display = "block";
+          thanks.textContent = `❌ ${data.error || "Something went wrong."}`;
+        }
+      } catch (err) {
+        console.error(err);
+        thanks.style.display = "block";
+        thanks.textContent = "❌ Something went wrong.";
+      }
+    });
+  </script>
+</body>
+</html>

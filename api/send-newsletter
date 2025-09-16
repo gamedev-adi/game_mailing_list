@@ -1,0 +1,28 @@
+import Resend from "resend";
+import { getSubscribers } from "../db.js";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).send("Method Not Allowed");
+
+  const { subject, htmlBody } = req.body;
+
+  try {
+    const subscribers = await getSubscribers();
+
+    for (let user of subscribers) {
+      await resend.emails.send({
+        from: process.env.FROM_EMAIL,
+        to: user.email,
+        subject,
+        html: htmlBody.replace(/\{\{unsubscribe_link\}\}/g, `https://yourdomain.com/unsubscribe.html?token=${user.token}`)
+      });
+    }
+
+    res.status(200).json({ sent: subscribers.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send newsletter." });
+  }
+}
